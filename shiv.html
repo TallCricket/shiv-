@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Cricket Scores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        #scores {
+            margin-top: 20px;
+        }
+        .match {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px auto;
+            max-width: 600px;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Cricket Scores</h1>
+    <button onclick="fetchScores()">Fetch Scores</button>
+    <div id="scores">Click the button to load scores.</div>
+
+    <script>
+        async function fetchScores() {
+            const apiUrl = "https://free-cricket-live-score1.p.rapidapi.com/schedule/upcoming";
+            const options = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Rapidapi-Key": "0034900f1fmshdfc0bfad012daaap109d42jsne5a5341cb656",
+                    "X-Rapidapi-Host": "free-cricket-live-score1.p.rapidapi.com",
+                },
+                body: JSON.stringify({ page_number: 1, match_formate: "T20" })
+            };
+
+            try {
+                const response = await fetch(apiUrl, options);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+
+                displayScores(data);
+            } catch (error) {
+                document.getElementById('scores').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        function displayScores(data) {
+            const scoresContainer = document.getElementById('scores');
+            scoresContainer.innerHTML = "";
+
+            if (data && data.data && data.data.length > 0) {
+                data.data.forEach(match => {
+                    const matchDiv = document.createElement('div');
+                    matchDiv.classList.add('match');
+
+                    matchDiv.innerHTML = `
+                        <h3>${match.match_title || "Match Title"}</h3>
+                        <p><strong>Start Time:</strong> ${new Date(match.match_start_date).toLocaleString()}</p>
+                        <p><strong>Venue:</strong> ${match.venue || "Unknown"}</p>
+                    `;
+
+                    scoresContainer.appendChild(matchDiv);
+                });
+            } else {
+                scoresContainer.innerHTML = "<p>No matches found.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
